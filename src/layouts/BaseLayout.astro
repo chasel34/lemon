@@ -7,7 +7,8 @@ interface Props {
   title?: string;
   description?: string;
   // 'home' 不渲染顶栏，改为悬浮在右上角的主题切换
-  variant?: 'home' | 'default';
+  // 'minimal' 渲染只有标记 + 主题切换的精简顶栏（用于 404 等独立页）
+  variant?: 'home' | 'default' | 'minimal';
 }
 
 const {
@@ -50,6 +51,13 @@ const {
       variant === 'home' ? (
         <div class="home-theme-toggle">
           <ThemeToggle />
+        </div>
+      ) : variant === 'minimal' ? (
+        <div class="app shell">
+          <header class="head">
+            <a class="head-mark" href="/">Lemon</a>
+            <ThemeToggle />
+          </header>
         </div>
       ) : (
         <div class="app shell">

@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout
+  title="404 · 这一页是空白的 — Lemon"
+  description="你要找的东西可能搬走了、改名了，或者从来就没存在过。"
+  variant="minimal"
+>
+  <div class="app notfound-page">
+    <section class="nf">
+      <div class="nf-stamp mono">PAGE · 404</div>
+
+      <div class="nf-number" aria-hidden="true">
+        <span>4</span>
+        <span class="nf-dot">·</span>
+        <span>0</span>
+        <span class="nf-dot">·</span>
+        <span>4</span>
+      </div>
+
+      <h1 class="nf-title">这一页是空白的。</h1>
+
+      <p class="nf-body">
+        你要找的东西可能搬走了、改名了，或者从来就没存在过。<br />
+        没关系，翻回去就好。
+      </p>
+
+      <div class="nf-rule" aria-hidden="true"></div>
+
+      <div class="nf-links">
+        <a class="nf-link" href="/">
+          <span class="nf-link-num mono">01</span>
+          <span class="nf-link-label">回首页</span>
+        </a>
+        <a class="nf-link" href="/articles">
+          <span class="nf-link-num mono">02</span>
+          <span class="nf-link-label">看全部文章</span>
+        </a>
+        <a class="nf-link" href="/about">
+          <span class="nf-link-num mono">03</span>
+          <span class="nf-link-label">读读关于这个博客 —— <em>Lemon 是谁</em></span>
+        </a>
+      </div>
+
+      <div class="nf-margin mono" aria-hidden="true">
+        ※ 如果你是顺着链接来的，可能是我搬家时忘了贴新地址。
+      </div>
+    </section>
+
+    <footer class="foot">
+      <div>© 2024 – 2026 Lemon</div>
+      <div>HTTP 404 · Not Found</div>
+    </footer>
+  </div>
+</BaseLayout>
