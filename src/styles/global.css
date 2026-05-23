@@ -1,0 +1,765 @@
+/* ───────────────── Tokens ───────────────── */
+
+:root {
+  /* warm light */
+  --bg:           #F2EADC;
+  --paper:        #FAF3E3;
+  --ink:          #1F1A12;
+  --ink-2:        #4A4034;
+  --muted:        #8A7C66;
+  --rule:         #D9CCB2;
+  --rule-2:       #E8DEC8;
+  --accent:       #8B4A28;
+  --accent-soft:  #B97A55;
+  --olive:        #6F7553;
+  --highlight:    #F0DCB4;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  /* warm dark */
+  --bg:           #181410;
+  --paper:        #211B14;
+  --ink:          #ECE2CC;
+  --ink-2:        #B8AB8E;
+  --muted:        #7A6E58;
+  --rule:         #322A20;
+  --rule-2:       #2A2218;
+  --accent:       #D89968;
+  --accent-soft:  #B97A55;
+  --olive:        #9CA37B;
+  --highlight:    #3A2E1C;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, "Songti SC", "Source Han Serif SC", Georgia, serif;
+  font-feature-settings: "kern";
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 320ms ease, color 320ms ease;
+}
+
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image:
+    radial-gradient(rgba(40,30,15,0.018) 1px, transparent 1px),
+    radial-gradient(rgba(40,30,15,0.013) 1px, transparent 1px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 1px 2px;
+  mix-blend-mode: multiply;
+}
+[data-theme="dark"] body::before {
+  background-image:
+    radial-gradient(rgba(255,240,220,0.022) 1px, transparent 1px),
+    radial-gradient(rgba(255,240,220,0.014) 1px, transparent 1px);
+  mix-blend-mode: screen;
+}
+
+::selection {
+  background: var(--highlight);
+  color: var(--ink);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+a:hover { text-decoration: underline; }
+
+/* 结构性链接（字标、导航、列表行、按钮式链接、特色卡）不要内容链接的悬停下划线 */
+.head-mark,
+.nav-link,
+.entry,
+.link-btn,
+.reader-bar .back,
+.essay-next .nav,
+.home-nav a,
+.home-featured,
+.home-list li a,
+.home-list-all,
+.head-mark:hover,
+.nav-link:hover,
+.entry:hover,
+.link-btn:hover,
+.reader-bar .back:hover,
+.essay-next .nav:hover,
+.home-nav a:hover,
+.home-featured:hover,
+.home-list li a:hover,
+.home-list-all:hover {
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  background: none; border: 0; color: inherit;
+  cursor: pointer; padding: 0;
+}
+
+.mono {
+  font-family: "JetBrains Mono", "Noto Sans SC", ui-monospace, monospace;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───────────────── App shell ───────────────── */
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 40px clamp(20px, 4vw, 48px) 96px;
+}
+.app.shell { padding-bottom: 0; }
+
+/* ───────────────── Header ───────────────── */
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 4px 0 20px;
+  margin-bottom: 88px;
+}
+.head-mark {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  transition: color 160ms;
+  font-variation-settings: "opsz" 144;
+}
+.head-mark:hover { color: var(--accent); }
+
+.head-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.head-nav {
+  display: flex;
+  gap: 22px;
+  align-items: baseline;
+}
+.head-nav .nav-link {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 0;
+  transition: color 160ms;
+}
+.head-nav .nav-link:hover { color: var(--ink); }
+.head-nav .nav-link.active { color: var(--ink); }
+
+.theme-toggle {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 8px;
+  border: 0;
+  background: none;
+  font-family: "JetBrains Mono", "Noto Sans SC", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  transition: color 160ms;
+}
+.theme-toggle:hover { color: var(--ink); }
+.theme-toggle .sym { font-size: 13px; line-height: 1; }
+
+/* ───────────────── Home (sidebar layout) ───────────────── */
+
+.home {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(64px, 10vh, 120px) clamp(28px, 6vw, 88px) 96px;
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: clamp(64px, 10vw, 140px);
+  align-items: start;
+}
+
+.home-side {
+  position: sticky;
+  top: clamp(64px, 10vh, 120px);
+}
+.home-name {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 400;
+  font-size: clamp(48px, 5vw, 64px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0 0 28px;
+  font-variation-settings: "opsz" 144;
+}
+.home-bio {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin: 0 0 56px;
+  max-width: 260px;
+  text-wrap: pretty;
+}
+.home-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.home-nav a {
+  color: var(--muted);
+  transition: color 160ms;
+}
+.home-nav a:hover { color: var(--ink); }
+
+.home-theme-toggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 5;
+}
+
+.home-main {
+  min-width: 0;
+}
+.home-main .kicker {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.home-featured {
+  display: block;
+  padding-bottom: 56px;
+  margin-bottom: 56px;
+  border-bottom: 1px solid var(--rule);
+  transition: opacity 200ms;
+  color: inherit;
+}
+.home-featured:hover { opacity: 0.85; }
+.home-featured-title {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 400;
+  font-size: clamp(34px, 4vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0 0 20px;
+  font-variation-settings: "opsz" 144;
+  text-wrap: balance;
+}
+.home-featured:hover .home-featured-title { color: var(--accent); }
+.home-featured-dek {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0 0 24px;
+  max-width: 56ch;
+  text-wrap: pretty;
+}
+.home-featured-meta {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.home-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-list li {
+  border-bottom: 1px solid var(--rule-2);
+}
+.home-list li:last-child { border-bottom: 0; }
+.home-list li a {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 24px;
+  align-items: baseline;
+  padding: 14px 0;
+  color: inherit;
+  transition: padding-left 200ms;
+}
+.home-list li a:hover { padding-left: 8px; }
+.home-list-date {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.home-list-title {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.home-list li a:hover .home-list-title { color: var(--accent); }
+.home-list-all {
+  display: inline-block;
+  margin-top: 36px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 160ms;
+}
+.home-list-all:hover { color: var(--ink); }
+
+/* ───────────────── Section heads ───────────────── */
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+.section-head h2 {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 500;
+  font-size: 20px;
+  margin: 0;
+  color: var(--ink);
+}
+
+.page-head {
+  margin-bottom: 72px;
+}
+.page-head h1 {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 400;
+  font-size: clamp(36px, 5vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: var(--ink);
+  font-variation-settings: "opsz" 144;
+}
+.page-sub {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 16px;
+  color: var(--muted);
+  margin: 12px 0 0;
+}
+
+/* ───────────────── Article list ───────────────── */
+
+.article-list { margin-bottom: 32px; }
+
+.year-group { margin-bottom: 36px; }
+.year-group:last-child { margin-bottom: 0; }
+
+.year-head {
+  padding: 6px 0 10px;
+}
+.year-head .y {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 400;
+  font-size: 22px;
+  color: var(--muted);
+  font-variant-numeric: oldstyle-nums;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 96px 1fr 64px;
+  gap: 20px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--rule-2);
+  cursor: pointer;
+  transition: padding-left 200ms ease, background 200ms ease;
+  position: relative;
+  color: inherit;
+}
+.entry:hover {
+  padding-left: 12px;
+  background: linear-gradient(90deg, var(--paper) 0%, transparent 80%);
+}
+.entry .num {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.entry .title {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.4;
+  color: var(--ink);
+  letter-spacing: -0.003em;
+}
+.entry .min {
+  font-size: 10.5px;
+  color: var(--muted);
+  text-align: right;
+}
+.entry:hover .title { color: var(--accent); }
+.entry:hover .min { color: var(--ink-2); }
+
+.see-all {
+  margin-top: 24px;
+  padding-top: 4px;
+}
+.link-btn {
+  display: inline-block;
+  font-family: "Noto Sans SC", "Inter", system-ui, sans-serif;
+  font-size: 14px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 3px;
+  transition: color 160ms, border-color 160ms;
+}
+.link-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ───────────────── Archive filters ───────────────── */
+
+.archive-filters {
+  display: flex; gap: 18px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  padding: 0 0 40px;
+  font-family: "JetBrains Mono", "Noto Sans SC", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.archive-filters .lab {
+  color: var(--muted);
+  margin-right: 6px;
+}
+.archive-filters button {
+  padding: 2px 0;
+  color: var(--muted);
+  border: 0;
+  border-bottom: 1px solid transparent;
+  transition: color 160ms, border-color 160ms;
+}
+.archive-filters button:hover { color: var(--ink); }
+.archive-filters button.on {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+/* ───────────────── About ───────────────── */
+
+.about-body {
+  max-width: 640px;
+}
+.about-body p {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 19px;
+  line-height: 1.9;
+  color: var(--ink);
+  margin: 0 0 1.4em;
+  text-wrap: pretty;
+}
+
+/* ───────────────── Footer ───────────────── */
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 80px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-family: "JetBrains Mono", "Noto Sans SC", ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* ───────────────── Reader view ───────────────── */
+
+.reader {
+  position: relative;
+  z-index: 1;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px) 120px;
+}
+
+/* ───────────────── Page transitions ───────────────── */
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.home,
+.app:not(.shell) {
+  animation: pageIn 240ms cubic-bezier(0.2, 0.6, 0.2, 1) both;
+}
+
+/* Reader: slightly slower, with a gentle stagger between bar/essay/next */
+.reader > .reader-bar { animation: pageIn 360ms cubic-bezier(0.2, 0.6, 0.2, 1) both; }
+.reader > .essay      { animation: pageIn 360ms cubic-bezier(0.2, 0.6, 0.2, 1) both; animation-delay: 60ms; }
+.reader > .essay-next { animation: pageIn 360ms cubic-bezier(0.2, 0.6, 0.2, 1) both; animation-delay: 120ms; }
+
+/* 顶部进度细线：position:fixed 定位到视窗顶端，不参与入场动画 */
+.reader > .reader-progress { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .home, .app:not(.shell),
+  .reader > .reader-bar, .reader > .essay, .reader > .essay-next {
+    animation: none;
+  }
+}
+
+.reader-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: transparent;
+  z-index: 10;
+  pointer-events: none;
+}
+.reader-progress .fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 100ms linear;
+}
+
+.reader-bar {
+  padding: 0 0 64px;
+}
+.reader-bar .back {
+  display: inline-flex; gap: 10px; align-items: center;
+  color: var(--muted);
+  font-family: "JetBrains Mono", "Noto Sans SC", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition: color 160ms;
+}
+.reader-bar .back:hover { color: var(--ink); }
+
+.essay {
+  max-width: 680px;
+  margin: 0 auto;
+}
+.essay-meta {
+  font-family: "JetBrains Mono", "Noto Sans SC", ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  display: flex; gap: 14px; flex-wrap: wrap;
+}
+.essay-meta .dot { color: var(--rule); }
+.essay h1 {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 500;
+  font-size: clamp(32px, 4.5vw, 44px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  margin: 0 0 20px;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.essay .dek {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 19px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0 0 40px;
+  text-wrap: pretty;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+.essay p {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 18px;
+  line-height: 1.85;
+  color: var(--ink);
+  margin: 0 0 1.2em;
+  text-wrap: pretty;
+}
+.essay blockquote {
+  margin: 28px 0;
+  padding: 4px 0 4px 24px;
+  border-left: 2px solid var(--accent);
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 19px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.essay blockquote .attr {
+  display: block;
+  font-family: "JetBrains Mono", "Noto Sans SC", ui-monospace, monospace;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+.essay h2 {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 500;
+  font-size: 22px;
+  margin: 48px 0 12px;
+  color: var(--ink);
+}
+.essay .pull {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.45;
+  color: var(--accent);
+  margin: 32px 0;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.essay-end {
+  text-align: center;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--rule);
+}
+.essay-end .ornament {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 18px;
+  color: var(--muted);
+  letter-spacing: 0.4em;
+}
+
+.essay-next {
+  max-width: 680px;
+  margin: 56px auto 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.essay-next .nav {
+  display: block;
+  padding: 14px 0;
+  border-top: 1px solid var(--ink-2);
+  cursor: pointer;
+  transition: padding 200ms;
+}
+.essay-next .nav:hover { padding-top: 20px; }
+.essay-next .nav.prev { text-align: left; }
+.essay-next .nav.next { text-align: right; }
+.essay-next .nav .dir {
+  font-family: "Noto Sans SC", "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.essay-next .nav .t {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 17px;
+  color: var(--ink);
+  line-height: 1.3;
+}
+.essay-next .nav:hover .t { color: var(--accent); }
+
+/* ───────────────── Code blocks ───────────────── */
+
+.essay pre {
+  margin: 28px 0;
+  padding: 18px 20px;
+  /* !important 覆盖 Shiki 注入的内联背景，统一用设计的暖纸底 */
+  background: var(--paper) !important;
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+  position: relative;
+}
+/* 右上角语言标签：来自 astro.config.mjs 里 transformer 写入的 data-lang */
+.essay pre[data-lang]::before {
+  content: attr(data-lang);
+  position: absolute;
+  top: 8px; right: 12px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.essay pre code {
+  font-family: inherit;
+  white-space: pre;
+  display: block;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+/* 深色主题下切换到 Shiki 的 dark 配色（双主题 CSS 变量方案） */
+[data-theme="dark"] .essay pre,
+[data-theme="dark"] .essay pre span {
+  color: var(--shiki-dark) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+.essay p code, .essay li code {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.88em;
+  padding: 1px 6px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+.essay ul, .essay ol {
+  margin: 12px 0 1.2em;
+  padding-left: 26px;
+}
+.essay ul li, .essay ol li {
+  font-family: "Fraunces", "Noto Serif SC", ui-serif, serif;
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+/* ───────────────── Responsive ───────────────── */
+
+@media (max-width: 860px) {
+  .home {
+    grid-template-columns: 1fr;
+    gap: 56px;
+    padding-top: 64px;
+  }
+  .home-side {
+    position: static;
+  }
+  .home-bio { margin-bottom: 32px; }
+  .home-nav { flex-direction: row; flex-wrap: wrap; gap: 18px; }
+}
+
+@media (max-width: 720px) {
+  .essay-next { grid-template-columns: 1fr; gap: 8px; }
+  .entry { grid-template-columns: 70px 1fr 48px; gap: 12px; }
+  .entry .title { font-size: 16px; }
+  .head-nav { gap: 16px; }
+  .head-right { gap: 16px; }
+}

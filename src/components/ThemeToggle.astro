@@ -1,0 +1,35 @@
+---
+// 主题切换按钮 —— ☀ 浅色 / ☾ 夜灯，状态持久化到 localStorage
+---
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="切换主题">
+  <span class="sym" data-sym>☀</span>
+  <span data-label>浅色</span>
+</button>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    const symEl = btn.querySelector('[data-sym]');
+    const labelEl = btn.querySelector('[data-label]');
+
+    const sync = () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (symEl) symEl.textContent = dark ? '☾' : '☀';
+      if (labelEl) labelEl.textContent = dark ? '深色' : '浅色';
+    };
+
+    sync();
+
+    btn.addEventListener('click', () => {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = dark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        /* localStorage 不可用时静默忽略 */
+      }
+      sync();
+    });
+  }
+</script>

@@ -1,0 +1,11 @@
+---
+// 文章里的引用块 —— 带左侧锈红竖线，可附署名
+interface Props {
+  attr?: string;
+}
+const { attr } = Astro.props;
+---
+<blockquote>
+  “<slot />”
+  {attr && <span class="attr">— {attr}</span>}
+</blockquote>

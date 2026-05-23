@@ -1,0 +1,26 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+// 去掉结尾斜杠后再比较，兼容 dev / build 两种路径形式
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+const nav: { href: string; label: string; active: boolean }[] = [
+  { href: '/articles', label: '文章', active: path.startsWith('/articles') },
+  { href: '/about', label: '关于', active: path === '/about' },
+];
+---
+<header class="head">
+  <a class="head-mark" href="/">Lemon</a>
+  <div class="head-right">
+    <nav class="head-nav mono">
+      {
+        nav.map((n) => (
+          <a class:list={['nav-link', { active: n.active }]} href={n.href}>
+            {n.label}
+          </a>
+        ))
+      }
+    </nav>
+    <ThemeToggle />
+  </div>
+</header>

@@ -1,0 +1,92 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const essays = await getCollection('essays');
+  // 倒序：最新在前，便于推导上一篇/下一篇
+  const sorted = [...essays].sort(
+    (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+  );
+  return sorted.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      prev: sorted[i + 1] ?? null, // 更早的一篇
+      next: sorted[i - 1] ?? null, // 更新的一篇
+    },
+  }));
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+---
+<BaseLayout title={`${d.title} · Lemon 的博客`} description={d.dek}>
+  <div class="reader" id="reader">
+    <div class="reader-progress" aria-hidden="true">
+      <div class="fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="reader-bar">
+      <a class="back" href="/articles">
+        <span>←</span><span>返回</span>
+      </a>
+    </div>
+
+    <article class="essay">
+      <div class="essay-meta">
+        <span>{d.dateLabel}</span>
+        <span class="dot">·</span>
+        <span>约 {d.minutes} 分钟</span>
+        <span class="dot">·</span>
+        <span style="color: var(--olive)">归类：{d.tag}</span>
+      </div>
+      <h1>{d.title}</h1>
+      <p class="dek">{d.dek}</p>
+
+      <Content />
+
+      <div class="essay-end">
+        <div class="ornament">❦</div>
+      </div>
+    </article>
+
+    <nav class="essay-next">
+      {
+        prev ? (
+          <a class="nav prev" href={`/articles/${prev.id}`}>
+            <div class="dir">← 上一篇</div>
+            <div class="t">{prev.data.title}</div>
+          </a>
+        ) : (
+          <div />
+        )
+      }
+      {
+        next ? (
+          <a class="nav next" href={`/articles/${next.id}`}>
+            <div class="dir">下一篇 →</div>
+            <div class="t">{next.data.title}</div>
+          </a>
+        ) : (
+          <div />
+        )
+      }
+    </nav>
+  </div>
+</BaseLayout>
+
+<script>
+  // 阅读进度条：按页面滚动比例填充
+  const reader = document.getElementById('reader');
+  const fill = document.getElementById('progress-fill');
+  if (reader && fill) {
+    const onScroll = () => {
+      const max = reader.scrollHeight - window.innerHeight + 200;
+      const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      fill.style.width = `${p * 100}%`;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+</script>

@@ -1,0 +1,44 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  essays: CollectionEntry<'essays'>[];
+  // 可选：只显示最近 N 篇（首页用）
+  limit?: number;
+}
+
+const { essays, limit } = Astro.props;
+
+// 按日期倒序
+const sorted = [...essays].sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+const list = limit ? sorted.slice(0, limit) : sorted;
+
+// 按年份分组
+const byYear = new Map<number, CollectionEntry<'essays'>[]>();
+for (const e of list) {
+  const y = e.data.date.getFullYear();
+  if (!byYear.has(y)) byYear.set(y, []);
+  byYear.get(y)!.push(e);
+}
+const years = [...byYear.keys()].sort((a, b) => b - a);
+---
+<div class="article-list">
+  {
+    years.map((y) => (
+      <div class="year-group" data-year={y}>
+        <div class="year-head">
+          <div class="y">{y}</div>
+        </div>
+        {byYear.get(y)!.map((e) => (
+          <a class="entry" href={`/articles/${e.id}`} data-tag={e.data.tag}>
+            <div class="num mono">{e.data.short}</div>
+            <div class="title">{e.data.title}</div>
+            <div class="min mono">{e.data.minutes} 分</div>
+          </a>
+        ))}
+      </div>
+    ))
+  }
+</div>

@@ -1,0 +1,9 @@
+---
+import { getCollection } from 'astro:content';
+
+const count = (await getCollection('essays')).length;
+---
+<footer class="foot">
+  <div>© 2024 – 2026 Lemon</div>
+  <div>共 {count} 篇</div>
+</footer>

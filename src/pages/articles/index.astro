@@ -1,0 +1,65 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleList from '../../components/ArticleList.astro';
+import Footer from '../../components/Footer.astro';
+
+const essays = await getCollection('essays');
+
+// 分类筛选项 —— 保留设计里的固定顺序，只显示有文章的分类
+const tagOrder = ['随笔', '技术', '设计', '过程'] as const;
+const tagCounts = tagOrder
+  .map((tag) => ({ tag, n: essays.filter((e) => e.data.tag === tag).length }))
+  .filter((x) => x.n > 0);
+---
+<BaseLayout title="文章 · Lemon 的博客">
+  <div class="app">
+    <section class="page-head">
+      <h1>文章</h1>
+    </section>
+
+    <div class="archive-filters" id="filters">
+      <span class="lab mono">分类</span>
+      <button class="on" type="button" data-filter="全部">全部</button>
+      {
+        tagCounts.map(({ tag, n }) => (
+          <button type="button" data-filter={tag}>
+            {tag}
+            <span style="opacity:0.5;margin-left:4px">·{n}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <ArticleList essays={essays} />
+
+    <Footer />
+  </div>
+</BaseLayout>
+
+<script>
+  // 分类筛选：切换 .on 高亮，按 data-tag 显隐文章行，空年份组一并隐藏
+  const filters = document.getElementById('filters');
+  if (filters) {
+    const buttons = [...filters.querySelectorAll<HTMLButtonElement>('button')];
+    const entries = [...document.querySelectorAll<HTMLElement>('.entry')];
+    const groups = [...document.querySelectorAll<HTMLElement>('.year-group')];
+
+    for (const btn of buttons) {
+      btn.addEventListener('click', () => {
+        const f = btn.dataset.filter;
+        for (const b of buttons) b.classList.toggle('on', b === btn);
+        for (const el of entries) {
+          const show = f === '全部' || el.dataset.tag === f;
+          el.style.display = show ? '' : 'none';
+        }
+        for (const group of groups) {
+          const anyVisible = [
+            ...group.querySelectorAll<HTMLElement>('.entry'),
+          ].some((el) => el.style.display !== 'none');
+          group.style.display = anyVisible ? '' : 'none';
+        }
+      });
+    }
+  }
+</script>

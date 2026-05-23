@@ -1,0 +1,68 @@
+---
+title: 用 CSS Grid 把卡片对齐这件事做对
+num: "№ 001"
+date: 2026-05-20
+dateLabel: 2026 年 5 月 20 日
+short: 26 年 5 月
+tag: 技术
+minutes: 6
+dek: 大家都会写 grid-template-columns，但 Grid 真正省事的部分，藏在 subgrid 和命名网格线里。
+---
+
+import Pull from '../../components/Pull.astro';
+import Quote from '../../components/Quote.astro';
+
+我承认，很长一段时间里我对 CSS Grid 的理解只停留在「等分几列、加个 `gap`」。直到重写这个博客，才被迫往里走了一点。下面是几个我希望自己早点知道的角落。
+
+## subgrid 让卡片对齐变得平凡
+
+一排卡片，每张里有标题、正文和一个按钮。想让三张卡片的按钮落在同一条水平线上，过去要么手动调 `padding`，要么写 JS 去量高度。`subgrid` 把这件事变成了声明式的：
+
+```css
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto auto;
+  gap: 24px;
+}
+.card {
+  display: grid;
+  grid-row: span 3;
+  /* 关键：行轨道从父级继承 */
+  grid-template-rows: subgrid;
+}
+```
+
+卡片自己不再定义行高，而是「借用」父网格的三条行轨道。于是同一行的卡片，标题对标题、按钮对按钮，自动对齐。
+
+<Pull>声明式的对齐，意味着你删掉一张卡片时，不用回去改任何数字。</Pull>
+
+## 命名网格线，让重排变便宜
+
+与其到处写 `grid-column: 2 / 4` 这种靠数格子的代码，不如给网格线起名字：
+
+```css
+.page {
+  display: grid;
+  grid-template-columns:
+    [full-start] 1fr
+    [main-start] min(68ch, 100%)
+    [main-end] 1fr [full-end];
+}
+.essay { grid-column: main; }
+.hero-image { grid-column: full; }
+```
+
+一个容易被忽视的细节：当一对网格线的名字以 `-start` / `-end` 结尾时，你可以直接用它们的公共前缀来引用中间那块区域——所以上面写 `grid-column: main` 就等价于 `main-start / main-end`。响应式断点要改版式时，你只改一处轨道定义，所有子元素会自动跟着搬家。
+
+## 一点取舍
+
+Grid 很强，但它不是所有布局的答案。我现在的判断标准大致是这样：
+
+- 一维排列（一行按钮、一列列表）用 `flex`，意图更直白；
+- 二维结构（卡片墙、整页骨架）才动用 `grid`；
+- `subgrid` 留给「子元素需要和兄弟元素对齐」的场景，不要为了用而用。
+
+<Quote attr="一位同事，在 code review 里">最好的布局代码，是半年后的你还看得懂的那种。</Quote>
+
+说到底，Grid 的价值不在于能写出多花哨的版式，而在于让「改版式」这件事变得便宜。Masonry 那部分还在各家浏览器之间打架，等它稳定下来，我再补一篇。

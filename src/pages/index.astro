@@ -1,0 +1,63 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const essays = await getCollection('essays');
+const sorted = [...essays].sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+const featured = sorted[0];
+const recent = sorted.slice(1, 6);
+const count = sorted.length;
+---
+<BaseLayout variant="home" title="Lemon">
+  <div class="home">
+    <aside class="home-side">
+      <h1 class="home-name">Lemon</h1>
+      <p class="home-bio">
+        写代码，也写关于代码与设计的零散想法。<br />
+        这里更新得不快，也不打算更快。
+      </p>
+      <nav class="home-nav mono">
+        <a href="/articles">全部文章</a>
+        <a href="/about">关于</a>
+      </nav>
+    </aside>
+
+    <main class="home-main">
+      {
+        featured && (
+          <a class="home-featured" href={`/articles/${featured.id}`}>
+            <div class="kicker mono">最近写的</div>
+            <h2 class="home-featured-title">{featured.data.title}</h2>
+            <p class="home-featured-dek">{featured.data.dek}</p>
+            <div class="home-featured-meta mono">
+              {featured.data.dateLabel} · 约 {featured.data.minutes} 分钟
+            </div>
+          </a>
+        )
+      }
+
+      {
+        recent.length > 0 && (
+          <section class="home-recent">
+            <div class="kicker mono">更早一些</div>
+            <ul class="home-list">
+              {recent.map((e) => (
+                <li>
+                  <a href={`/articles/${e.id}`}>
+                    <span class="home-list-date mono">{e.data.short}</span>
+                    <span class="home-list-title">{e.data.title}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a class="home-list-all mono" href="/articles">
+              查看全部 {count} 篇 →
+            </a>
+          </section>
+        )
+      }
+    </main>
+  </div>
+</BaseLayout>
